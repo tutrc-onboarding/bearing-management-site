@@ -1,0 +1,77 @@
+<h1>ベアリング在庫管理</h1>
+
+<!-- 入力欄 -->
+内径(mm):<input type="number" step="0.01" id="inner">
+<br>
+外径(mm):<input type="number" step="0.01" id="outer">
+<br>
+厚さ(mm):<input type="number" step="0.01" id="width">
+<br>
+フランジ：<select id="flange">
+    <option>なし</option>
+    <option>あり</option>
+</select>
+<br>
+<div id="flange-fields" hidden>
+    <br>
+    フランジ外径(mm):<input type="number" step="0.01" id="flange_outer">
+    <br>
+    フランジ厚さ(mm):<input type="number" step="0.01" id="flange_width">
+    <br>
+</div>
+特殊事項:<textarea id="notes"></textarea>
+<br>
+在庫数:<input type="number" step="1" id="quantity">
+<br>
+<button type="button" id="register">登録</button>
+
+
+<h2>在庫一覧</h2>
+
+<label>
+    内径で検索(mm):
+    <input type="number" step="0.01" id="search-inner">
+    <br>
+    外径で検索(mm):
+    <input type="number" step="0.01" id="search-outer">
+    <br>
+    厚さで検索(mm):
+    <input type="number" step="0.01" id="search-width">
+    <br>
+    フランジ:
+    <select id="search-flange">
+        <option value="">すべて</option>
+        <option value="なし">なし</option>
+        <option value="あり">あり</option>
+    </select>
+    <br>
+    特殊事項で検索:
+    <input type="text" id="search-notes">
+</label>
+<button type="button" id="clear-search">検索をクリア</button>
+<p id="result-count"></p>
+
+<table>
+    <thead>
+        <tr>
+            <th>内径（mm）</th>
+            <th>外径（mm）</th>
+            <th>厚さ（mm）</th>
+            <th>フランジ</th>
+            <th>フランジ外径（mm）</th>
+            <th>フランジ厚さ（mm）</th>
+            <th>特殊事項</th>
+            <th>在庫数</th>
+            <th>操作</th>
+        </tr>
+    </thead>
+    <tbody id="bearing-rows"></tbody>
+</table>
+
+<div id="bearing-list"></div>
+
+<!-- javascriptの処理 -->
+<script src="script.js"></script>
+
+<!-- CSSの処理 -->
+<link rel="stylesheet" href="style.css">
