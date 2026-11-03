@@ -1,72 +1,146 @@
-<h1>ベアリング在庫管理</h1>
+<header class="page-header">
+    <h1>ベアリング在庫管理</h1>
+</header>
 
 <!-- 入力欄 -->
-内径(mm):<input type="number" step="0.01" id="inner">
-<br>
-外径(mm):<input type="number" step="0.01" id="outer">
-<br>
-厚さ(mm):<input type="number" step="0.01" id="width">
-<br>
-フランジ：<select id="flange">
-    <option>なし</option>
-    <option>あり</option>
-</select>
-<br>
-<div id="flange-fields" hidden>
-    <br>
-    フランジ外径(mm):<input type="number" step="0.01" id="flange_outer">
-    <br>
-    フランジ厚さ(mm):<input type="number" step="0.01" id="flange_width">
-    <br>
-</div>
-特殊事項:<textarea id="notes"></textarea>
-<br>
-在庫数:<input type="number" step="1" id="quantity">
-<br>
-<button type="button" id="register">登録</button>
 
+<section class="entry-card">
+    <h2>在庫を登録</h2>
+    <p class="entry-description">寸法と在庫数を入力してください。寸法の単位はmmです。</p>
 
-<h2>在庫一覧</h2>
+    <div class="dimension-grid">
+        <label class="entry-field">
+            内径（mm）
+            <input type="number" step="0.01" id="inner">
+        </label>
 
-<label>
-    内径で検索(mm):
-    <input type="number" step="0.01" id="search-inner">
-    <br>
-    外径で検索(mm):
-    <input type="number" step="0.01" id="search-outer">
-    <br>
-    厚さで検索(mm):
-    <input type="number" step="0.01" id="search-width">
-    <br>
-    フランジ:
-    <select id="search-flange">
-        <option value="">すべて</option>
-        <option value="なし">なし</option>
-        <option value="あり">あり</option>
-    </select>
-    <br>
-    特殊事項で検索:
-    <input type="text" id="search-notes">
-</label>
-<button type="button" id="clear-search">検索をクリア</button>
+        <label class="entry-field">
+            外径（mm）
+            <input type="number" step="0.01" id="outer">
+        </label>
+
+        <label class="entry-field">
+            厚さ（mm）
+            <input type="number" step="0.01" id="width">
+        </label>
+    </div>
+    <label class="entry-field">
+        フランジ
+        <select id="flange">
+            <option>なし</option>
+            <option>あり</option>
+        </select>
+    </label>
+
+    <div id="flange-fields" hidden>
+        <div class="flange-grid">
+            <label class="entry-field">
+                フランジ外径（mm）
+                <input type="number" step="0.01" id="flange_outer">
+            </label>
+
+            <label class="entry-field">
+                フランジ厚さ（mm）
+                <input type="number" step="0.01" id="flange_width">
+            </label>
+        </div>
+    </div>
+
+    <div class="entry-bottom">
+        <label class="entry-field">
+            特殊事項
+            <textarea id="notes" rows="3" placeholder="特殊な形状や補足事項など"></textarea>
+        </label>
+
+        <label class="entry-field">
+            在庫数（個）
+            <input type="number" min="0" step="1" id="quantity">
+        </label>
+    </div>
+
+    <button type="button" id="register">登録</button>
+</section>
+
+<h2 class="inventory-title">在庫一覧</h2>
+
+<section class="search-card">
+    <h3>条件で絞り込み</h3>
+
+    <div class="search-grid">
+        <label class="search-field">
+            内径（mm）
+            <input type="number" step="0.01" id="search-inner">
+        </label>
+
+        <label class="search-field">
+            外径（mm）
+            <input type="number" step="0.01" id="search-outer">
+        </label>
+
+        <label class="search-field">
+            厚さ（mm）
+            <input type="number" step="0.01" id="search-width">
+        </label>
+
+        <label class="search-field">
+            フランジ
+            <select id="search-flange">
+                <option value="">すべて</option>
+                <option value="なし">なし</option>
+                <option value="あり">あり</option>
+            </select>
+        </label>
+
+        <label class="search-field search-notes-field">
+            特殊事項
+            <input type="text" id="search-notes" placeholder="キーワードを入力">
+        </label>
+    </div>
+
+    <button type="button" id="clear-search">検索をクリア</button>
+</section>
+<details class="backup-card">
+    <summary>バックアップ・復元</summary>
+
+    <p class="backup-description">
+        在庫データをファイルに保存したり、保存済みのファイルから復元できます。
+    </p>
+
+    <div class="backup-actions">
+        <button type="button" id="export-data">
+            バックアップを保存
+        </button>
+
+        <label class="backup-import">
+            バックアップから復元
+            <input type="file" id="import-data" accept=".json">
+        </label>
+    </div>
+</details>
 <p id="result-count"></p>
+<p class="table-help">
+    在庫数をダブルクリックすると、個数を変更できます。
+</p>
 
-<table>
-    <thead>
-        <tr>
-            <th>内径（mm）</th>
-            <th>外径（mm）</th>
-            <th>厚さ（mm）</th>
-            <th>フランジ</th>
-            <th>フランジ外径（mm）</th>
-            <th>フランジ厚さ（mm）</th>
-            <th>特殊事項</th>
-            <th>在庫数</th>
-            <th>操作</th>
-        </tr>
-    </thead>
-    <tbody id="bearing-rows"></tbody>
-</table>
+
+<div class="table-scroll">
+    <table>
+        <thead>
+            <tr>
+                <th>内径（mm）</th>
+                <th>外径（mm）</th>
+                <th>厚さ（mm）</th>
+                <th>フランジ</th>
+                <th>フランジ外径（mm）</th>
+                <th>フランジ厚さ（mm）</th>
+                <th>特殊事項</th>
+                <th>在庫数</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody id="bearing-rows"></tbody>
+    </table>
+</div>
 
 <div id="bearing-list"></div>
 

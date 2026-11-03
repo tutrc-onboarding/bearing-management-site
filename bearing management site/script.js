@@ -124,9 +124,23 @@ registerButton.addEventListener("click", function () {
     list.appendChild(item);
     filterBearings();
 
-    document.getElementById("quantity").value = "";
-    document.getElementById("inner").focus();
+    // 登録が成功したら入力欄を空にする
+    const inputIds = [
+        "inner", "outer", "width",
+        "flange_outer", "flange_width",
+        "notes", "quantity"
+    ];
 
+    inputIds.forEach(function (id) {
+        document.getElementById(id).value = "";
+    });
+
+    // フランジを「なし」に戻す
+    flangeSelect.value = "なし";
+    flangeFields.hidden = true;
+
+    // 次の入力を始める位置へ戻す
+    document.getElementById("inner").focus();
 });
 
 //検索欄の処理
@@ -194,11 +208,126 @@ function createBearingRow(bearing) {
         bearing.quantity
     ];
 
-    values.forEach(function (value) {
+    values.forEach(function (value, cellIndex) {
         const cell = document.createElement("td");
         cell.textContent = value;
+        if (cellIndex === 7) {
+            cell.classList.add("quantity-cell");
+            cell.title = "ダブルクリックで在庫数を変更";
+
+            cell.addEventListener("dblclick", function () {
+                const input = prompt("新しい在庫数を入力してください", bearing.quantity);
+
+                if (input === null) {
+                    return;
+                }
+
+                if (input.trim() === "" || !Number.isInteger(Number(input)) || Number(input) < 0) {
+                    alert("在庫数は0以上の整数にしてください");
+                    return;
+                }
+
+                bearing.quantity = String(Number(input));
+                localStorage.setItem("bearings", JSON.stringify(bearings));
+                cell.textContent = bearing.quantity;
+
+                cell.style.color = Number(bearing.quantity) === 0 ? "#be123c" : "";
+                cell.style.fontWeight = Number(bearing.quantity) === 0 ? "bold" : "";
+            });
+        }
+        if (cellIndex === 7 && Number(bearing.quantity) === 0) {
+            cell.style.color = "#be123c";
+            cell.style.fontWeight = "bold";
+        }
         row.appendChild(cell);
     });
 
     return row;
 }
+
+
+// バックアップの保存と復元の処理
+const exportButton = document.getElementById("export-data");
+
+exportButton.addEventListener("click", function () {
+    const data = JSON.stringify(bearings, null, 2);
+    const file = new Blob([data], { type: "application/json" });
+    const url = URL.createObjectURL(file);
+
+    const link = document.createElement("a");
+    link.href = url;
+    const now = new Date();
+
+    const timestamp = now.getFullYear()
+        + "-" + String(now.getMonth() + 1).padStart(2, "0")
+        + "-" + String(now.getDate()).padStart(2, "0")
+        + "_" + String(now.getHours()).padStart(2, "0")
+        + "-" + String(now.getMinutes()).padStart(2, "0")
+        + "-" + String(now.getSeconds()).padStart(2, "0");
+
+    link.download = "bearing-backup_" + timestamp + ".json";
+
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    setTimeout(function () {
+        URL.revokeObjectURL(url);
+    }, 1000);
+});
+
+const importInput = document.getElementById("import-data");
+
+importInput.addEventListener("change", async function () {
+    const file = importInput.files[0];
+
+    if (!file) {
+        return;
+    }
+
+    try {
+        const text = await file.text();
+        const importedBearings = JSON.parse(text);
+
+        if (!Array.isArray(importedBearings)) {
+            alert("在庫一覧の形式ではありません");
+            return;
+        }
+
+        const requiredKeys = [
+            "inner", "outer", "width", "flange",
+            "flangeOuter", "flangeWidth", "notes", "quantity"
+        ];
+
+        const valid = importedBearings.every(function (bearing) {
+            return bearing !== null
+                && typeof bearing === "object"
+                && requiredKeys.every(function (key) {
+                    return typeof bearing[key] === "string";
+                });
+        });
+
+        if (!valid) {
+            alert("在庫データの項目が正しくありません");
+            return;
+        }
+        const confirmed = confirm(
+            "現在の在庫を、バックアップの"
+            + importedBearings.length
+            + "件に置き換えますか？"
+        );
+
+        if (!confirmed) {
+            return;
+        }
+
+        localStorage.setItem("bearings", JSON.stringify(importedBearings));
+        location.reload();
+
+    } catch (error) {
+        alert("ファイルを読み取れませんでした。バックアップファイルを確認してください");
+    } finally {
+        importInput.value = "";
+    }
+}
+);
